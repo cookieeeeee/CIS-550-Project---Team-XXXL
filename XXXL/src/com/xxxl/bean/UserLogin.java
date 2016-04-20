@@ -1,6 +1,6 @@
 package com.xxxl.bean;
 
-public class User {
+public class UserLogin {
 	private String name;
 	private String pwd;
 

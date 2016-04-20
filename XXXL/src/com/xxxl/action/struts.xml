@@ -3,9 +3,10 @@
           "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
           "http://struts.apache.org/dtds/struts-2.0.dtd">
 <struts>
-	<package name="config" namespace="/" extends="struts-default" abstract="false">
-		<action name="login" class="com.xxxl.config.UserAction" method="login">
-			<result name="success">/index.jsp</result>
+	<package name="action" extends="struts-default" abstract="false">
+		<action name="login" class="com.xxxl.action.UserAction" method="login">
+			<result name="success">success.jsp</result>
+			<result name="error">error.jsp</result>
 		</action>
 	</package>
 </struts>

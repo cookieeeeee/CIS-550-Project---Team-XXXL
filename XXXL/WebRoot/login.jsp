@@ -17,11 +17,11 @@
 		<table>
 			<tr>
 				<td>User Name:</td>
-				<td><input type="text" name="user.name"></td>
+				<td><input type="text" name="userLogin.name"></td>
 			</tr>
 			<tr>
 				<td>Password:</td>
-				<td><input type="text" name="user.pwd"></td>
+				<td><input type="text" name="userLogin.pwd"></td>
 			</tr>
 			<tr>
 				<td></td>
