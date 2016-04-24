@@ -23,7 +23,7 @@
 </head>
 
 <body>
-	User Name or Password mismatching.
+	${ErrorMessage }
 	<br>
 </body>
 </html>

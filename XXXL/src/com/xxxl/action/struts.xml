@@ -5,8 +5,21 @@
 <struts>
 	<package name="action" extends="struts-default" abstract="false">
 		<action name="login" class="com.xxxl.action.UserAction" method="login">
-			<result name="success">success.jsp</result>
-			<result name="error">error.jsp</result>
+			<result name="success">homepage.jsp</result>
+			<result name="error">login.jsp</result>
+		</action>
+
+		<action name="register" class="com.xxxl.action.Register">
+			<result name="success">registersuccess.jsp</result>
+			<result name="error">register.jsp</result>
+		</action>
+
+		<action name="fileUploadAction" class="com.xxxl.action.FileUploadAction">
+			<result name="success">homepage.jsp</result>
+		</action>
+
+		<action name="searchAction" class="com.xxxl.action.SearchAction">
+			<result name="success">homepage.jsp</result>
 		</action>
 	</package>
 </struts>

@@ -21,11 +21,13 @@
 			</tr>
 			<tr>
 				<td>Password:</td>
-				<td><input type="text" name="userLogin.pwd"></td>
+				<td><input type="password" name="userLogin.pwd"></td>
 			</tr>
 			<tr>
-				<td></td>
-				<td><input type="submit" value="Login"></td>
+				<td><span style="color: red;">${requestScope.mismatch}</span></td>
+				<td><input type="submit" value="Login"><a
+					href="register.jsp">Register</a></td>
+
 			</tr>
 		</table>
 		<br /> <br />
