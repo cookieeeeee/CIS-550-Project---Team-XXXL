@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +19,7 @@ import org.json.JSONObject;
 import com.xxxl.bean.UserLogin;
 import com.xxxl.dao.JSONDAO;
 import com.xxxl.dao.UserLoginDAO;
-import com.xxxl.util.Tuple;
+import com.xxxl.util.SearchHelper;
 
 public class UserService {
 
@@ -55,12 +56,11 @@ public class UserService {
 
 	public void extractJSON(File jsonFile, String fileName, String name) {
 		BufferedReader reader;
-		// char[] buffer = new char[4096];
 		String output = "";
+		FileInputStream fis = null;
 		try {
-			reader = new BufferedReader(new InputStreamReader(
-					new FileInputStream(jsonFile), "UTF-8"));
-			// reader.read(buffer);
+			fis = new FileInputStream(jsonFile);
+			reader = new BufferedReader(new InputStreamReader(fis, "UTF-8"));
 			String line;
 			while ((line = reader.readLine()) != null) {
 				output += line;
@@ -69,38 +69,43 @@ public class UserService {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			try {
+				fis.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 
-		// JSONObject jsonObject = new JSONObject(output);
 		JSONDAO jDAO = new JSONDAO();
 		jDAO.saveJSON(output, fileName, name);
-		// jDAO.saveJSON(jsonObject);
+	}
+
+	public void linking(String userName, ArrayList<String> otherNames) {
+		JSONDAO jDAO = new JSONDAO();
+		List<String> allUserNames = new LinkedList<String>(otherNames);
+		allUserNames.add(userName);
+		jDAO.linking(allUserNames);
 	}
 
 	public List<String> search(String keyword1, String keyword2,
-			String userName, List<String> names) {
+			String userName, List<String> otherUserNames) {
 		LinkedList<String> ret = new LinkedList<String>();
-		List<String> allNames = new LinkedList<String>(names);
-		allNames.add(userName);
+		List<String> allUserNames = new LinkedList<String>(otherUserNames);
+		allUserNames.add(userName);
 		JSONDAO jDAO = new JSONDAO();
-		List<Tuple<String, Document>> namdNDocs = jDAO.findDocs(allNames);
-		Map<String, Map<String, LinkedList<String>>> parents = new HashMap<String, Map<String, LinkedList<String>>>();
+		LinkedList<Document> allDocs = (LinkedList<Document>) jDAO
+				.findDocs(allUserNames);
 		// Set following relation
-
-		for (Tuple<String, Document> nameNDoc : namdNDocs) {
+		for (Document curDoc : allDocs) {
 			// Map<String, String> parent = new HashMap<String, String>();
-			String curUName = nameNDoc.t0;
-			Document doc = nameNDoc.t1;
-			parents.put(curUName + "_" + doc.get("__fileName__").toString(),
-					getParent(doc));
-		}
-		for (String fileName : parents.keySet()) {
-			Map<String, LinkedList<String>> parent = parents.get(fileName);
-			if (parent.containsKey(keyword1)) {
-				getParentStr(keyword1, keyword1, parent, ret);
-			}
-			if(parent.containsKey(keyword2)){
-				getParentStr(keyword2, keyword2, parent, ret);
+			// String curUName = nameNDoc.t0;
+			Document doc = curDoc;
+			if (doc.get("value").equals(keyword1)) {
+				SearchHelper helper = new SearchHelper();
+				String result = helper.findPath(allDocs, curDoc, keyword2, 0,
+						new HashSet<String>());
+				System.out.println(result);
 			}
 		}
 		return ret;

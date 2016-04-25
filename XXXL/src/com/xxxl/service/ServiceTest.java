@@ -47,7 +47,7 @@ public class ServiceTest {
 		UserService userService = new UserService();
 		UserLoginDAO.init("zhixu");
 		List<String> names = new LinkedList<String>();
-		names.add("tui");
-		userService.search("4", "b", "zhixu", names);
+//		names.add("tui");
+		userService.search("4", "1013", "zhixu", names);
 	}
 }
