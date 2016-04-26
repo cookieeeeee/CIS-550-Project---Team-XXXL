@@ -24,7 +24,7 @@ public class JsonNode {
 		String a = "";
 		try{
 		 a = "JsonNode [key=" + key + ", value=" + value + ", id=" + id
-				+ ", parentId: " + parent.id + "]";
+				+ ", linkedId: " + linkedId + "]";
 		}catch(Exception e){
 			
 		}

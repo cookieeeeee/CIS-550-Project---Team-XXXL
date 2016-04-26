@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedList;
+import java.util.Map;
 
 import org.bson.Document;
 
@@ -15,23 +16,12 @@ public class SearchHelper {
 		this.parent = new Hashtable<String, Document>();
 	}
 
-	private static Document findDoc(String id, LinkedList<Document> allDocs) {
-		for (Document d : allDocs) {
-			// try {
-			if (d.get("id").equals(id)) {
-				return d;
-				// }
-				// } catch (Exception e) {
-				// continue;
-			}
-		}
-		return null;
-	}
-
-	public String findPath(LinkedList<Document> allDocs, Document curDoc,
+	public String findPath(Map<String, Document> docsMap, Document curDoc,
 			String keyword2, int depth, HashSet<String> visitedSet) {
-		String result = DFS(allDocs, curDoc, keyword2, depth, visitedSet);
-		String path = (String) findDoc(result, allDocs).get("key");
+		String result = DFS(docsMap, curDoc, keyword2, depth, visitedSet);
+		// String path = (String) findDoc(result, docsMap).get("key");
+		String path = docsMap.get(result).getString("key") + ":"
+				+ docsMap.get(result).getString("value");
 		Document parentDoc = null;
 		while ((parentDoc = parent.get(result)) != null) {
 			path = parentDoc.getString("key") + ":"
@@ -41,7 +31,7 @@ public class SearchHelper {
 		return path;
 	}
 
-	private String DFS(LinkedList<Document> allDocs, Document curDoc,
+	private String DFS(Map<String, Document> docsMap, Document curDoc,
 			String keyword2, int depth, HashSet<String> visitedSet) {
 
 		if (depth == threshold) {
@@ -54,11 +44,15 @@ public class SearchHelper {
 			}
 			visitedSet.add(linkedId);
 			parent.put(linkedId, curDoc);
-			Document d = findDoc(linkedId, allDocs);
+			// Document d = findDoc(linkedId, docsMap);
+			Document d = docsMap.get(linkedId);
+			if (d == null) {
+				continue;
+			}
 			if (d.get("value").equals(keyword2)) {
 				return (String) d.get("id");
 			}
-			String ret = DFS(allDocs, d, keyword2, depth + 1, visitedSet);
+			String ret = DFS(docsMap, d, keyword2, depth + 1, visitedSet);
 			if (ret != null) {
 				return ret;
 			}

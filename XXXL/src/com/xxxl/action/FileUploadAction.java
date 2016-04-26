@@ -11,10 +11,12 @@ import org.apache.struts2.interceptor.ServletRequestAware;
 import org.apache.struts2.interceptor.SessionAware;
 
 import com.opensymphony.xwork2.ActionSupport;
+import com.xxxl.dao.UserLoginDAO;
 import com.xxxl.service.UserService;
 
 public class FileUploadAction extends ActionSupport implements
 		ServletRequestAware, SessionAware {
+	private static final String String = null;
 	private File file1;
 	private String file1FileName;
 	private String file1ContentType;
@@ -39,12 +41,18 @@ public class FileUploadAction extends ActionSupport implements
 
 	@Override
 	public String execute() throws Exception {
-		// System.out.println(file1);
-		// System.out.println(file1FileName);
-		// System.out.println(file1ContentType);
-		userService.extractJSON(file1, file1FileName, (String) session.get("name"));
-		userService.linking((String) session.get("name"),(ArrayList<String>) session.get("follows"));
-
+		System.out.println(file1ContentType);
+		String userName = (String) session.get("name");
+		if (file1ContentType.equals("application/octet-stream")) {
+			userService.extractJSON(file1, file1FileName, userName);
+		} else if (file1ContentType.equals("text/csv")) {
+			userService.extractCSV(file1, file1FileName, userName);
+		} else if(file1ContentType.equals("text/xml")){
+			userService.extractXML(file1, file1FileName,userName);
+		}else{
+			userService.extractOtherFiles(file1,file1FileName,userName);
+		}
+		userService.linking(userName, (List<String>) session.get("follows"));
 		request.setAttribute("hint", "File Uploaded!");
 		return SUCCESS;
 	}

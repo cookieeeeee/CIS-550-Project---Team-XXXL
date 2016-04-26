@@ -19,12 +19,12 @@
 	BasicDBObject query = new BasicDBObject("name", name);
 	//Iterator<Document> ite = JSONDAO.json.find()
 	//.projection(Projections.include("__fileName__")).iterator();
-	Iterator<Document> ite = JSONDAO.json.find(Filters.regex(
-			"__fileName__", ".*")).iterator();
+	Iterator<Document> ite = JSONDAO.json.find(new BasicDBObject(
+			"value", "__content__")).iterator();
 	LinkedList<String> fileNames = new LinkedList<String>();
 	while (ite.hasNext()) {
 		Document curDoc = ite.next();
-		String fileName = (String) curDoc.get("__fileName__");
+		String fileName = (String) curDoc.get("key");
 		fileNames.add(fileName);
 	}
 	session.setAttribute("fileList", fileNames);

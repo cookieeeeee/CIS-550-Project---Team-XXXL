@@ -12,25 +12,28 @@ import freemarker.core.ParseException;
 public class Json2Graph {
 
 	private static String mapName = "map";
-	private static int mapCount = 0;
+	private static int mapCount;
 	private static String listName = "list";
-	private static int listCount = -1;
-	private static String contentName = "content";
+	private static int listCount;
+	private static String contentName = "__content__";
 	private static LinkedList<JsonNode> resultList;
 	private static String prefix;
-	private static int idCount = 0;
+	private static int idCount;
 
 	public final static LinkedList<JsonNode> json2Graph(String jsonStr,
 			String userName, String fileName) throws ParseException {
+		idCount = 0;
+		listCount = -1;
+		mapCount = 0;
 		resultList = new LinkedList<JsonNode>();
 		prefix = userName + ":" + fileName.replace(".", "_") + ":";
 		JSONObject jsonObject = new JSONObject(jsonStr);
-		JsonNode root = new JsonNode(null, fileName, "content", prefix);
-		JsonNode ancester = new JsonNode(root, "content", "map0", prefix
+		JsonNode root = new JsonNode(null, fileName, "__content__", prefix);
+		JsonNode ancester = new JsonNode(root, "__content__", "map0", prefix
 				+ idCount);
 		idCount++;
-		resultList.add(ancester);
 		resultList.add(root);
+		resultList.add(ancester);
 		parseMapObj(jsonObject, ancester);
 		getAllChildren();
 		setLinkedIds();

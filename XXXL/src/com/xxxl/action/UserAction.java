@@ -6,10 +6,12 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.struts2.interceptor.ServletRequestAware;
 import org.apache.struts2.interceptor.SessionAware;
-import org.apache.struts2.util.ServletContextAware;
+import org.bson.Document;
 
+import com.mongodb.client.MongoCursor;
 import com.opensymphony.xwork2.ActionSupport;
 import com.xxxl.bean.UserLogin;
+import com.xxxl.dao.UserLoginDAO;
 import com.xxxl.service.UserService;
 
 public class UserAction extends ActionSupport implements ServletRequestAware,
@@ -36,6 +38,11 @@ public class UserAction extends ActionSupport implements ServletRequestAware,
 		if (userService.checkLogin(userLogin)) {
 			session.put("name", userLogin.getName());
 			userService.initDAO(userLogin.getName());
+			MongoCursor<Document> mongoCursor = UserLoginDAO.json.find().iterator();
+			while(mongoCursor.hasNext()){
+				System.out.println(mongoCursor.next());
+			}
+			System.out.println();
 			return SUCCESS;
 		} else {
 			// ActionContext.getContext().put("mismatch",

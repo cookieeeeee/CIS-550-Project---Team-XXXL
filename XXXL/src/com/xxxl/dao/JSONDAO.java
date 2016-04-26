@@ -1,20 +1,20 @@
 package com.xxxl.dao;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.bson.Document;
-import org.json.JSONObject;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
+import com.xxxl.util.CSV2Graph;
 import com.xxxl.util.Json2Graph;
 import com.xxxl.util.JsonNode;
+import com.xxxl.util.Tika2Graph;
+import com.xxxl.util.XML2Graph;
 
 import freemarker.core.ParseException;
 
@@ -23,17 +23,8 @@ public class JSONDAO {
 	public static MongoCollection<Document> json;
 	public static MongoCollection<Document> login;
 	static {
-		MongoClient mongo = new MongoClient("localhost", 27017);
 		login = UserLoginDAO.login;
 		json = UserLoginDAO.json;
-	}
-
-	private Document JSON2Document(JSONObject jObj) {
-		Map<String, Object> map = new HashMap<String, Object>();
-		for (String key : jObj.keySet()) {
-			map.put(key, jObj.get(key));
-		}
-		return new Document(map);
 	}
 
 	public void saveJSON(String jsonStr, String fileName, String userName) {
@@ -43,6 +34,19 @@ public class JSONDAO {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
+		LinkedList<Document> allDocs = new LinkedList<Document>();
+		for (JsonNode j : jList) {
+			Document forInsert = new Document("id", j.id).append("key", j.key)
+					.append("value", j.value);
+			forInsert.append("linkedId", j.linkedId);
+			allDocs.add(forInsert);
+		}
+		json.insertMany(allDocs);
+	}
+
+	public void saveCSV(File csvFile, String fileName, String userName) {
+		List<JsonNode> jList = null;
+		jList = new CSV2Graph().parseCSV(csvFile, userName, fileName);
 		LinkedList<Document> allDocs = new LinkedList<Document>();
 		for (JsonNode j : jList) {
 			Document forInsert = new Document("id", j.id).append("key", j.key)
@@ -67,15 +71,13 @@ public class JSONDAO {
 	}
 
 	public void linking(List<String> userNames) {
-		// LinkedList<Document> allFileDoc = new LinkedList<Document>();
 		// Get all fileDoc
 		for (String userName : userNames) {
 			MongoCollection<Document> curUserCollection = UserLoginDAO.accounts
 					.getCollection(userName);
 			MongoCursor<Document> mongoCursor = curUserCollection.find(
-					new BasicDBObject("value", "content")).iterator();
+					new BasicDBObject("value", "__content__")).iterator();
 			while (mongoCursor.hasNext()) {
-				// allFileDoc.add(mongoCursor.next());
 				Document docToUpdate = mongoCursor.next();
 				updateDocsLink(docToUpdate, curUserCollection, userNames);
 			}
@@ -119,5 +121,32 @@ public class JSONDAO {
 								innerUserLinkedIds)));
 			}
 		}
+	}
+
+	public void saveXML(File file1, String file1FileName, String userName) {
+		List<JsonNode> jList = null;
+		// jList = new CSV2Graph().parseCSV(csvFile, userName, fileName);
+		jList = new XML2Graph().parseXML(file1, userName, file1FileName);
+		LinkedList<Document> allDocs = new LinkedList<Document>();
+		for (JsonNode j : jList) {
+			Document forInsert = new Document("id", j.id).append("key", j.key)
+					.append("value", j.value);
+			forInsert.append("linkedId", j.linkedId);
+			allDocs.add(forInsert);
+		}
+		json.insertMany(allDocs);
+	}
+
+	public void saveOtherFiles(File file1, String file1FileName, String userName) {
+		List<JsonNode> jList = null;
+		jList = new Tika2Graph().parthFile(file1, userName, file1FileName);
+		LinkedList<Document> allDocs = new LinkedList<Document>();
+		for (JsonNode j : jList) {
+			Document forInsert = new Document("id", j.id).append("key", j.key)
+					.append("value", j.value);
+			forInsert.append("linkedId", j.linkedId);
+			allDocs.add(forInsert);
+		}
+		json.insertMany(allDocs);
 	}
 }

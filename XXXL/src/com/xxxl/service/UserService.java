@@ -54,7 +54,7 @@ public class UserService {
 		userLoginDAO.insertAccount(userLogin);
 	}
 
-	public void extractJSON(File jsonFile, String fileName, String name) {
+	public void extractJSON(File jsonFile, String fileName, String userName) {
 		BufferedReader reader;
 		String output = "";
 		FileInputStream fis = null;
@@ -78,10 +78,17 @@ public class UserService {
 		}
 
 		JSONDAO jDAO = new JSONDAO();
-		jDAO.saveJSON(output, fileName, name);
+		JSONDAO.json = UserLoginDAO.accounts.getCollection(userName);
+		jDAO.saveJSON(output, fileName, userName);
 	}
 
-	public void linking(String userName, ArrayList<String> otherNames) {
+	public void extractCSV(File csvFile, String fileName, String userName) {
+		JSONDAO jDAO = new JSONDAO();
+		JSONDAO.json = UserLoginDAO.accounts.getCollection(userName);
+		jDAO.saveCSV(csvFile, fileName, userName);
+	}
+
+	public void linking(String userName, List<String> otherNames) {
 		JSONDAO jDAO = new JSONDAO();
 		List<String> allUserNames = new LinkedList<String>(otherNames);
 		allUserNames.add(userName);
@@ -97,13 +104,14 @@ public class UserService {
 		LinkedList<Document> allDocs = (LinkedList<Document>) jDAO
 				.findDocs(allUserNames);
 		// Set following relation
+		Map<String, Document> docsMap = new HashMap<String, Document>();
 		for (Document curDoc : allDocs) {
-			// Map<String, String> parent = new HashMap<String, String>();
-			// String curUName = nameNDoc.t0;
-			Document doc = curDoc;
-			if (doc.get("value").equals(keyword1)) {
+			docsMap.put(curDoc.getString("id"), curDoc);
+		}
+		for (Document curDoc : allDocs) {
+			if (curDoc.get("value").equals(keyword1)) {
 				SearchHelper helper = new SearchHelper();
-				String result = helper.findPath(allDocs, curDoc, keyword2, 0,
+				String result = helper.findPath(docsMap, curDoc, keyword2, 0,
 						new HashSet<String>());
 				System.out.println(result);
 			}
@@ -129,15 +137,12 @@ public class UserService {
 			if (key.equals("__fileName__") || key.equals("_id")) {
 				continue;
 			}
-			// parent.put(doc.get(key).toString(), key.split("->")[0]);
 			if (parent.containsKey(doc.get(key).toString())) {
 				LinkedList<String> parentList = parent.get(doc.get(key)
 						.toString());
-				// parentList.add(key.split("->")[0]);
 				parentList.add(key);
 			} else {
 				LinkedList<String> parentList = new LinkedList<String>();
-				// parentList.add(key.split("->")[0]);
 				parentList.add(key);
 				parent.put(doc.get(key).toString(), parentList);
 			}
@@ -147,5 +152,18 @@ public class UserService {
 
 	public void initDAO(String name) {
 		UserLoginDAO.init(name);
+	}
+
+	public void extractXML(File file1, String file1FileName, String userName) {
+		JSONDAO jDAO = new JSONDAO();
+		JSONDAO.json = UserLoginDAO.accounts.getCollection(userName);
+		jDAO.saveXML(file1, file1FileName, userName);
+	}
+
+	public void extractOtherFiles(File file1, String file1FileName,
+			String userName) {
+		JSONDAO jDAO = new JSONDAO();
+		JSONDAO.json = UserLoginDAO.accounts.getCollection(userName);
+		jDAO.saveOtherFiles(file1, file1FileName, userName);
 	}
 }
