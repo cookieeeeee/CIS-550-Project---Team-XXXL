@@ -1,7 +1,6 @@
 package com.xxxl.action;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -11,7 +10,7 @@ import org.apache.struts2.interceptor.ServletRequestAware;
 import org.apache.struts2.interceptor.SessionAware;
 
 import com.opensymphony.xwork2.ActionSupport;
-import com.xxxl.dao.UserLoginDAO;
+import com.xxxl.service.DisplayNodes;
 import com.xxxl.service.UserService;
 
 public class FileUploadAction extends ActionSupport implements
@@ -41,19 +40,24 @@ public class FileUploadAction extends ActionSupport implements
 
 	@Override
 	public String execute() throws Exception {
-		System.out.println(file1ContentType);
 		String userName = (String) session.get("name");
-		if (file1ContentType.equals("application/octet-stream")) {
+		String fileExtension = file1FileName.substring(
+				file1FileName.lastIndexOf(".") + 1).toLowerCase();
+		if (file1ContentType.equals("application/octet-stream")
+				|| fileExtension.equals("json")) {
 			userService.extractJSON(file1, file1FileName, userName);
-		} else if (file1ContentType.equals("text/csv")) {
+		} else if (file1ContentType.equals("text/csv")
+				|| fileExtension.equals("csv")) {
 			userService.extractCSV(file1, file1FileName, userName);
-		} else if(file1ContentType.equals("text/xml")){
-			userService.extractXML(file1, file1FileName,userName);
-		}else{
-			userService.extractOtherFiles(file1,file1FileName,userName);
+		} else if (file1ContentType.equals("text/xml")
+				|| fileExtension.equals("xml")) {
+			userService.extractXML(file1, file1FileName, userName);
+		} else {
+			userService.extractOtherFiles(file1, file1FileName, userName);
 		}
-		userService.linking(userName, (List<String>) session.get("follows"));
+		userService.linking();
 		request.setAttribute("hint", "File Uploaded!");
+		session.put("jsonStr", new DisplayNodes().displayFiles());
 		return SUCCESS;
 	}
 

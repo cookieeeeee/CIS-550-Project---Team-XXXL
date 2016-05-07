@@ -7,11 +7,13 @@ import java.util.Map;
 import org.bson.Document;
 import org.json.JSONObject;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.UpdateOptions;
 import com.xxxl.bean.UserLogin;
 
 public class UserLoginDAO {
@@ -52,5 +54,14 @@ public class UserLoginDAO {
 		Document account = new Document(accountMap);
 		login.insertOne(account);
 		accounts.createCollection(userLogin.getName());
+	}
+
+	public void insertFollows(String userName, String follows) {
+		MongoCollection<Document> login = accounts.getCollection("login");
+		// Document user = login.find(new Document("name",
+		// userName)).iterator().next();
+		login.updateOne(new Document("name", userName), new BasicDBObject(
+				"$push", new BasicDBObject("follows", follows)),
+				new UpdateOptions().upsert(true));
 	}
 }

@@ -12,7 +12,14 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
+/**
+ * file root, xml rootnode, xml node
+ */
 public class XML2Graph {
+	public static final String FILE_ROOT = "file root";
+	public final static String XML_ROOTNODE = "xml rootnode";
+	public final static String XML_NODE = "xml rootnode";
+
 	public List<JsonNode> parseXML(File file, String userName, String fileName) {
 		List<JsonNode> ret = new LinkedList<JsonNode>();
 		LinkedList<Element> nodeList = new LinkedList<Element>();
@@ -27,10 +34,11 @@ public class XML2Graph {
 			e.printStackTrace();
 		}
 		Element root = xmlDoc.getRootElement();
-		JsonNode jRoot = new JsonNode(null, fileName, "__content__", prefix);
+		JsonNode jRoot = new JsonNode(null, fileName, "__content__", prefix,
+				FILE_ROOT);
 		ret.add(jRoot);
 		JsonNode rootNode = new JsonNode(jRoot, root.getPath(),
-				root.getTextTrim(), prefix + idCount);
+				root.getTextTrim(), prefix + idCount, XML_ROOTNODE);
 		ret.add(rootNode);
 		idCount++;
 		for (Iterator<Element> ite = root.elementIterator(); ite.hasNext();) {
@@ -41,7 +49,8 @@ public class XML2Graph {
 		while (nodeList.size() > 0) {
 			Element node = nodeList.pop();
 			JsonNode nodeNode = new JsonNode(findParent.get(node),
-					node.getPath(), node.getTextTrim(), prefix + idCount);
+					node.getPath(), node.getTextTrim(), prefix + idCount,
+					XML_NODE);
 			idCount++;
 			ret.add(nodeNode);
 			for (Iterator<Element> ite = node.elementIterator(); ite.hasNext();) {

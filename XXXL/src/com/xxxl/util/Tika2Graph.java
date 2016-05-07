@@ -15,15 +15,22 @@ import org.apache.lucene.util.Version;
 import org.apache.tika.Tika;
 import org.apache.tika.exception.TikaException;
 
+/**
+ * file root, tika words, tika word
+ */
 public class Tika2Graph {
+	public static final String TIKA_WORDS = "tika words";
+	public static final String TIKA_WORD = "tika word";
+
 	public List<JsonNode> parthFile(File file, String userName, String fileName) {
 		List<JsonNode> ret = new LinkedList<JsonNode>();
 		String prefix = userName + ":" + fileName.replace(".", "_") + ":";
 		int idCount = 0;
 
-		JsonNode root = new JsonNode(null, fileName, "__content__", prefix);
+		JsonNode root = new JsonNode(null, fileName, "__content__", prefix,
+				"file root");
 		JsonNode ancestor = new JsonNode(root, "__content__", "words", prefix
-				+ idCount);
+				+ idCount, TIKA_WORDS);
 		idCount++;
 		ret.add(root);
 		ret.add(ancestor);
@@ -44,7 +51,7 @@ public class Tika2Graph {
 			List<String> tokens = textToTokens(sentence);
 			for (String token : tokens) {
 				JsonNode thisNode = new JsonNode(ancestor, "word"
-						+ (idCount - 1), token, prefix + idCount);
+						+ (idCount - 1), token, prefix + idCount, TIKA_WORD);
 				idCount++;
 				ret.add(thisNode);
 			}

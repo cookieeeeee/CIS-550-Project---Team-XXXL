@@ -9,8 +9,9 @@ public class JsonNode {
 	public String value;
 	public String id;
 	public LinkedList<String> linkedId;
+	public String desc;
 	
-	public JsonNode(JsonNode parent, String key, String value, String id) {
+	private JsonNode(JsonNode parent, String key, String value, String id) {
 		this.parent = parent;
 		this.children = new LinkedList<JsonNode>();
 		this.linkedId = new LinkedList<String>();
@@ -18,6 +19,15 @@ public class JsonNode {
 		this.value = value;
 		this.id = id;
 	}
+	
+	
+
+	public JsonNode(JsonNode parent, String key, String value, String id, String desc) {
+		this(parent, key, value, id);
+		this.desc = desc;
+	}
+
+
 
 	@Override
 	public String toString() {

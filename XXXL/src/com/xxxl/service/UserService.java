@@ -88,16 +88,17 @@ public class UserService {
 		jDAO.saveCSV(csvFile, fileName, userName);
 	}
 
-	public void linking(String userName, List<String> otherNames) {
+	public void linking() {
 		JSONDAO jDAO = new JSONDAO();
-		List<String> allUserNames = new LinkedList<String>(otherNames);
-		allUserNames.add(userName);
+		// List<String> allUserNames = new LinkedList<String>(otherNames);
+		// allUserNames.add(userName);
+		List<String> allUserNames = jDAO.findAllUserNames();
 		jDAO.linking(allUserNames);
 	}
 
 	public List<String> search(String keyword1, String keyword2,
 			String userName, List<String> otherUserNames) {
-		LinkedList<String> ret = new LinkedList<String>();
+		List<String> ret = new LinkedList<String>();
 		List<String> allUserNames = new LinkedList<String>(otherUserNames);
 		allUserNames.add(userName);
 		JSONDAO jDAO = new JSONDAO();
@@ -108,46 +109,27 @@ public class UserService {
 		for (Document curDoc : allDocs) {
 			docsMap.put(curDoc.getString("id"), curDoc);
 		}
-		for (Document curDoc : allDocs) {
-			if (curDoc.get("value").equals(keyword1)) {
-				SearchHelper helper = new SearchHelper();
-				String result = helper.findPath(docsMap, curDoc, keyword2, 0,
-						new HashSet<String>());
-				System.out.println(result);
-			}
+		List<Document> nodesIncludingKeyword1 = findNodeIncludingKeyword1(keyword1);
+		for (Document nodeIncludingkey1 : nodesIncludingKeyword1) {
+			SearchHelper helper = new SearchHelper();
+			List<String> resultList = helper.findPath(docsMap,
+					nodeIncludingkey1, keyword2, 0, new HashSet<String>());
+			ret.addAll(resultList);
 		}
+		// for (Document curDoc : allDocs) {
+		// if (curDoc.get("value").equals(keyword1)) {
+		// SearchHelper helper = new SearchHelper();
+		// List<String> resultList = helper.findPath(docsMap, curDoc,
+		// keyword2, 0, new HashSet<String>());
+		// ret.addAll(resultList);
+		// }
+		// }
 		return ret;
 	}
 
-	private void getParentStr(String curNode, String forRet,
-			Map<String, LinkedList<String>> parent, LinkedList<String> allPaths) {
-		if (parent.containsKey(curNode)) {
-			for (String s : parent.get(curNode)) {
-				forRet = s + ":" + forRet;
-				getParentStr(s.split("->")[0], forRet, parent, allPaths);
-			}
-		} else {
-			allPaths.add(forRet);
-		}
-	}
-
-	private Map<String, LinkedList<String>> getParent(Document doc) {
-		Map<String, LinkedList<String>> parent = new HashMap<String, LinkedList<String>>();
-		for (String key : doc.keySet()) {
-			if (key.equals("__fileName__") || key.equals("_id")) {
-				continue;
-			}
-			if (parent.containsKey(doc.get(key).toString())) {
-				LinkedList<String> parentList = parent.get(doc.get(key)
-						.toString());
-				parentList.add(key);
-			} else {
-				LinkedList<String> parentList = new LinkedList<String>();
-				parentList.add(key);
-				parent.put(doc.get(key).toString(), parentList);
-			}
-		}
-		return parent;
+	private List<Document> findNodeIncludingKeyword1(String keyword1) {
+		JSONDAO jsondao = new JSONDAO();
+		return jsondao.findNodes(keyword1);
 	}
 
 	public void initDAO(String name) {
@@ -165,5 +147,9 @@ public class UserService {
 		JSONDAO jDAO = new JSONDAO();
 		JSONDAO.json = UserLoginDAO.accounts.getCollection(userName);
 		jDAO.saveOtherFiles(file1, file1FileName, userName);
+	}
+
+	public void followUser(String userName, String follows) {
+		new UserLoginDAO().insertFollows(userName, follows);
 	}
 }

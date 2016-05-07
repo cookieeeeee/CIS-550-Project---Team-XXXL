@@ -21,5 +21,14 @@
 		<action name="searchAction" class="com.xxxl.action.SearchAction">
 			<result name="success">homepage.jsp</result>
 		</action>
+
+		<action name="followAction" class="com.xxxl.action.FollowAction">
+			<result name="success">homepage.jsp</result>
+		</action>
+
+		<action name="logoutAction" class="com.xxxl.action.UserAction"
+			method="logout">
+			<result name="success">login.jsp</result>
+		</action>
 	</package>
 </struts>

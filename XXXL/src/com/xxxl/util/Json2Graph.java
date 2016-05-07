@@ -9,7 +9,15 @@ import org.json.JSONObject;
 
 import freemarker.core.ParseException;
 
+/**
+ * file root, json map0, json map, json array, json node
+ */
 public class Json2Graph {
+	public static final String FILE_ROOT = "file root";
+	public static final String JSON_MAP0 = "json map0";
+	public static final String JSON_MAP = "json map";
+	public static final String JSON_ARRAY = "json array";
+	public static final String JSON_NODE = "json node";
 
 	private static String mapName = "map";
 	private static int mapCount;
@@ -28,9 +36,10 @@ public class Json2Graph {
 		resultList = new LinkedList<JsonNode>();
 		prefix = userName + ":" + fileName.replace(".", "_") + ":";
 		JSONObject jsonObject = new JSONObject(jsonStr);
-		JsonNode root = new JsonNode(null, fileName, "__content__", prefix);
+		JsonNode root = new JsonNode(null, fileName, "__content__", prefix,
+				FILE_ROOT);
 		JsonNode ancester = new JsonNode(root, "__content__", "map0", prefix
-				+ idCount);
+				+ idCount, JSON_MAP0);
 		idCount++;
 		resultList.add(root);
 		resultList.add(ancester);
@@ -63,37 +72,29 @@ public class Json2Graph {
 
 	private final static void parseMapObj(JSONObject jsonObject,
 			JsonNode curNode) {
-		// Map<String, Object> resultMap = new HashMap<String, Object>();
 		Iterator<String> iterator = jsonObject.keys();
 		String currentMapName = curNode.value;
 		while (iterator.hasNext()) {
 			String key = (String) iterator.next();
 			Object value = jsonObject.get(key);
 			if (value instanceof JSONObject) {
-				// resultMap.put(key, value);
 				mapCount++;
 				JsonNode curChild = new JsonNode(curNode, currentMapName + "->"
-						+ key, mapName + mapCount, prefix + idCount);
+						+ key, mapName + mapCount, prefix + idCount, JSON_MAP);
 				idCount++;
-				// resultMap.put(currentMapName + "->" + key, mapName +
-				// mapCount);
 				resultList.add(curChild);
 				parseMapObj((JSONObject) value, curChild);
 			} else if (value instanceof JSONArray) {
-				// resultMap.put(key, value);
 				listCount++;
 				JsonNode curChild = new JsonNode(curNode, currentMapName + "->"
-						+ key, listName + listCount, prefix + idCount);
+						+ key, listName + listCount, prefix + idCount,
+						JSON_ARRAY);
 				idCount++;
-				// resultMap
-				// .put(currentMapName + "->" + key, listName + listCount);
 				resultList.add(curChild);
 				parseListObj((JSONArray) value, curChild);
 			} else {
-				// resultMap.put(currentMapName + "->" + key,
-				// jsonObject.get(key));
 				resultList.add(new JsonNode(curNode, currentMapName + "->"
-						+ key, value.toString(), prefix + idCount));
+						+ key, value.toString(), prefix + idCount, JSON_NODE));
 				idCount++;
 			}
 		}
@@ -108,30 +109,24 @@ public class Json2Graph {
 				mapCount++;
 				JsonNode curChild = new JsonNode(curNode, currentListName
 						+ "->" + contentName + contentCount,
-						mapName + mapCount, prefix + idCount);
+						mapName + mapCount, prefix + idCount, JSON_MAP);
 				resultList.add(curChild);
 				idCount++;
-				// resultMap.put(currentListName + "->" + contentName
-				// + contentCount, mapName + mapCount);
 				contentCount++;
 				parseMapObj((JSONObject) value, curChild);
 			} else if (value instanceof JSONArray) {
-				// resultMap.put(currentListName + "->" + contentName
-				// + contentCount, listName + listCount);
 				listCount++;
 				JsonNode curChild = new JsonNode(curNode, currentListName
 						+ "->" + contentName + contentCount, listName
-						+ listCount, prefix + idCount);
+						+ listCount, prefix + idCount, JSON_ARRAY);
 				idCount++;
 				resultList.add(curChild);
 				contentCount++;
 				parseListObj((JSONArray) value, curChild);
 			} else {
-				// resultMap.put(currentListName + "->" + contentName
-				// + contentCount, value);
 				resultList.add(new JsonNode(curNode, currentListName + "->"
 						+ contentName + contentCount, value.toString(), prefix
-						+ idCount));
+						+ idCount, JSON_NODE));
 				idCount++;
 				contentCount++;
 			}

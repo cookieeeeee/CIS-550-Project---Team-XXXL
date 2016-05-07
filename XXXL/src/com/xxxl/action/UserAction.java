@@ -1,5 +1,11 @@
 package com.xxxl.action;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -12,6 +18,7 @@ import com.mongodb.client.MongoCursor;
 import com.opensymphony.xwork2.ActionSupport;
 import com.xxxl.bean.UserLogin;
 import com.xxxl.dao.UserLoginDAO;
+import com.xxxl.service.DisplayNodes;
 import com.xxxl.service.UserService;
 
 public class UserAction extends ActionSupport implements ServletRequestAware,
@@ -38,11 +45,7 @@ public class UserAction extends ActionSupport implements ServletRequestAware,
 		if (userService.checkLogin(userLogin)) {
 			session.put("name", userLogin.getName());
 			userService.initDAO(userLogin.getName());
-			MongoCursor<Document> mongoCursor = UserLoginDAO.json.find().iterator();
-			while(mongoCursor.hasNext()){
-				System.out.println(mongoCursor.next());
-			}
-			System.out.println();
+			session.put("jsonStr", new DisplayNodes().displayFiles());
 			return SUCCESS;
 		} else {
 			// ActionContext.getContext().put("mismatch",
@@ -50,6 +53,11 @@ public class UserAction extends ActionSupport implements ServletRequestAware,
 			request.setAttribute("mismatch", "Password mismatching");
 			return ERROR;
 		}
+	}
+
+	public String logout() {
+		session.put("name", null);
+		return SUCCESS;
 	}
 
 	@Override
