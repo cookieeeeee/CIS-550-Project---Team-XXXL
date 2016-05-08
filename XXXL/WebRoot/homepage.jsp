@@ -47,7 +47,7 @@
 <head>
 <base href="<%=basePath%>">
 
-<title>My JSP 'index.jsp' starting page</title>
+<title>Homepage</title>
 <meta http-equiv="pragma" content="no-cache">
 <meta http-equiv="cache-control" content="no-cache">
 <meta http-equiv="expires" content="0">
@@ -61,11 +61,11 @@
 	float: left;
 	border-style: solid;
 	border-width: 1px;
-	border-color: lime;
+	border-color: black;
 }
 
 #content {
-	width: 400px;
+	width: auto;
 	height: auto;
 	float: left;
 }
@@ -76,6 +76,8 @@
 	height: auto;
 }
 </style>
+</head>
+
 <body>
 	<div id="content">
 		Hello ${name } <a
@@ -139,63 +141,15 @@
 		</table>
 	</div>
 	<script src="/js/sigma.min.js"></script>
+	<script src="/js/src/renderers/sigma.renderers.canvas.js"></script>
+	<script src="/js/src/renderers/canvas/sigma.canvas.hovers.def.js"></script>
 	<script src="/js/sigma.parsers.json.min.js"></script>
 	<script src="/js/sigma.layout.forceAtlas2/worker.js"></script>
 	<script src="/js/sigma.layout.forceAtlas2/supervisor.js"></script>
-	<script src="/js/src/renderers/sigma.renderers.canvas.js"></script>
-	<script src="/js/src/renderers/canvas/sigma.canvas.hovers.def.js"></script>
 
-	<!-- START SIGMA IMPORTS -->
-	<script src="/js/src/conrad.js"></script>
-	<script src="/js/src/utils/sigma.utils.js"></script>
-	<script src="/js/src/utils/sigma.polyfills.js"></script>
-	<script src="/js/src/sigma.settings.js"></script>
-	<script src="/js/src/classes/sigma.classes.dispatcher.js"></script>
-	<script src="/js/src/classes/sigma.classes.configurable.js"></script>
-	<script src="/js/src/classes/sigma.classes.graph.js"></script>
-	<script src="/js/src/classes/sigma.classes.camera.js"></script>
-	<script src="/js/src/classes/sigma.classes.quad.js"></script>
-	<script src="/js/src/classes/sigma.classes.edgequad.js"></script>
-	<script src="/js/src/captors/sigma.captors.mouse.js"></script>
-	<script src="/js/src/captors/sigma.captors.touch.js"></script>
-	<script src="/js/src/renderers/sigma.renderers.canvas.js"></script>
-	<script src="/js/src/renderers/sigma.renderers.webgl.js"></script>
-	<script src="/js/src/renderers/sigma.renderers.svg.js"></script>
-	<script src="/js/src/renderers/sigma.renderers.def.js"></script>
-	<script src="/js/src/renderers/webgl/sigma.webgl.nodes.def.js"></script>
-	<script src="/js/src/renderers/webgl/sigma.webgl.nodes.fast.js"></script>
-	<script src="/js/src/renderers/webgl/sigma.webgl.edges.def.js"></script>
-	<script src="/js/src/renderers/webgl/sigma.webgl.edges.fast.js"></script>
-	<script src="/js/src/renderers/webgl/sigma.webgl.edges.arrow.js"></script>
-	<script src="/js/src/renderers/canvas/sigma.canvas.labels.def.js"></script>
-	<script src="/js/src/renderers/canvas/sigma.canvas.hovers.def.js"></script>
-	<script src="/js/src/renderers/canvas/sigma.canvas.nodes.def.js"></script>
-	<script src="/js/src/renderers/canvas/sigma.canvas.edges.def.js"></script>
-	<script src="/js/src/renderers/canvas/sigma.canvas.edges.curve.js"></script>
-	<script src="/js/src/renderers/canvas/sigma.canvas.edges.arrow.js"></script>
-	<script
-		src="/js/src/renderers/canvas/sigma.canvas.edges.curvedArrow.js"></script>
-	<script src="/js/src/renderers/canvas/sigma.canvas.edgehovers.def.js"></script>
-	<script src="/js/src/renderers/canvas/sigma.canvas.edgehovers.curve.js"></script>
-	<script src="/js/src/renderers/canvas/sigma.canvas.edgehovers.arrow.js"></script>
-	<script
-		src="/js/src/renderers/canvas/sigma.canvas.edgehovers.curvedArrow.js"></script>
-	<script src="/js/src/renderers/canvas/sigma.canvas.extremities.def.js"></script>
-	<script src="/js/src/renderers/svg/sigma.svg.utils.js"></script>
-	<script src="/js/src/renderers/svg/sigma.svg.nodes.def.js"></script>
-	<script src="/js/src/renderers/svg/sigma.svg.edges.def.js"></script>
-	<script src="/js/src/renderers/svg/sigma.svg.edges.curve.js"></script>
-	<script src="/js/src/renderers/svg/sigma.svg.labels.def.js"></script>
-	<script src="/js/src/renderers/svg/sigma.svg.hovers.def.js"></script>
-	<script src="/js/src/middlewares/sigma.middlewares.rescale.js"></script>
-	<script src="/js/src/middlewares/sigma.middlewares.copy.js"></script>
-	<script src="/js/src/misc/sigma.misc.animation.js"></script>
-	<script src="/js/src/misc/sigma.misc.bindEvents.js"></script>
-	<script src="/js/src/misc/sigma.misc.bindDOMEvents.js"></script>
-	<script src="/js/src/misc/sigma.misc.drawHovers.js"></script>
-	<!-- END SIGMA IMPORTS -->
 	<script>
 		var data = ${jsonStr};
+		var pathList = ${pathList};
 		s = new sigma({
 			graph : data,
 			//container : 'container',
@@ -204,15 +158,10 @@
 				type : 'canvas'
 			},
 			settings : {
-				defaultNodeColor : '#666',
+				defaultNodeColor : '#bbbbbb',
 				labelThreshold : 100,
-				defaultEdgeColor : '#ccc',
-				edgeHoverColor : '#bbb',
-				edgeHoverSizeRatio : 10,
-				edgeHoverExtremities : true,
-				enableEdgeHovering : true,
-				defaultEdgeHoverColor : '#aaa'
-
+				defaultEdgeColor : '#DDDDDD',
+				edgeColor : "default",
 			}
 		});
 		s.startForceAtlas2({
@@ -222,9 +171,30 @@
 			outboundAttractionDistribution : true,
 			strongGravityMode : true
 		});
+		var resultColor = "#ff0000";
+		for (var i = 0; i < pathList.length; i++) {
+			var nodeList = pathList[i];
+			for (var j = 0; j < nodeList.length; j++) {
+				node0 = nodeList[j];
+				s.graph.nodes().forEach(function(e) {
+					if (e.id == node0) {
+						e.color = resultColor;
+					}
+				});
+				if(j==nodeList.length-1)
+					break;
+				node1 = nodeList[j+1];
+				s.graph.edges().forEach(function(e) {
+					if ((e.source == node0 && e.target == node1)
+							|| (e.source == node1 && e.target == node0)) {
+						e.color = resultColor;
+					}
+				});
+			}
+		}
 		setTimeout("s.stopForceAtlas2()", 10000);
 	</script>
-</head>
+
 </body>
 
 

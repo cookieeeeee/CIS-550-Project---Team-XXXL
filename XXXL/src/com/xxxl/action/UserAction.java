@@ -46,10 +46,9 @@ public class UserAction extends ActionSupport implements ServletRequestAware,
 			session.put("name", userLogin.getName());
 			userService.initDAO(userLogin.getName());
 			session.put("jsonStr", new DisplayNodes().displayFiles());
+			session.put("pathList", "[]");
 			return SUCCESS;
 		} else {
-			// ActionContext.getContext().put("mismatch",
-			// "Password mismatching");
 			request.setAttribute("mismatch", "Password mismatching");
 			return ERROR;
 		}

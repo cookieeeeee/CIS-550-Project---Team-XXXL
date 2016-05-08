@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.bson.Document;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.xxxl.bean.UserLogin;
@@ -96,9 +97,9 @@ public class UserService {
 		jDAO.linking(allUserNames);
 	}
 
-	public List<String> search(String keyword1, String keyword2,
+	public List<List<Document>> search(String keyword1, String keyword2,
 			String userName, List<String> otherUserNames) {
-		List<String> ret = new LinkedList<String>();
+		List<List<Document>> ret = new LinkedList<List<Document>>();
 		List<String> allUserNames = new LinkedList<String>(otherUserNames);
 		allUserNames.add(userName);
 		JSONDAO jDAO = new JSONDAO();
@@ -112,18 +113,11 @@ public class UserService {
 		List<Document> nodesIncludingKeyword1 = findNodeIncludingKeyword1(keyword1);
 		for (Document nodeIncludingkey1 : nodesIncludingKeyword1) {
 			SearchHelper helper = new SearchHelper();
-			List<String> resultList = helper.findPath(docsMap,
+			List<Document> resultList = helper.findPath(docsMap,
 					nodeIncludingkey1, keyword2, 0, new HashSet<String>());
-			ret.addAll(resultList);
+			// ret.addAll(resultList);
+			ret.add(resultList);
 		}
-		// for (Document curDoc : allDocs) {
-		// if (curDoc.get("value").equals(keyword1)) {
-		// SearchHelper helper = new SearchHelper();
-		// List<String> resultList = helper.findPath(docsMap, curDoc,
-		// keyword2, 0, new HashSet<String>());
-		// ret.addAll(resultList);
-		// }
-		// }
 		return ret;
 	}
 
@@ -151,5 +145,33 @@ public class UserService {
 
 	public void followUser(String userName, String follows) {
 		new UserLoginDAO().insertFollows(userName, follows);
+	}
+
+	public String createResultStr(List<Document> docList) {
+		StringBuilder ret = new StringBuilder();
+		Document firstDoc = docList.get(docList.size() - 1);
+		ret.append(firstDoc.getString("id").split(":")[1].replace("_", ".")
+				+ "::" + firstDoc.getString("key") + ":"
+				+ firstDoc.getString("value"));
+		for (int i = docList.size() - 2; i >= 0; i--) {
+			Document d = docList.get(i);
+			String path = "||"
+					+ d.getString("id").split(":")[1].replace("_", ".") + "::"
+					+ d.getString("key") + ":" + d.getString("value");
+			ret.append(path);
+		}
+		return ret.toString();
+	}
+
+	public String createPathList(List<List<Document>> docLists) {
+		JSONArray ret = new JSONArray();
+		for (List<Document> docList : docLists) {
+			JSONArray list = new JSONArray();
+			for (Document d : docList) {
+				list.put(d.getString("id"));
+			}
+			ret.put(list);
+		}
+		return ret.toString();
 	}
 }

@@ -14,37 +14,26 @@ public class SearchHelper {
 	private static int threshold = 20;
 	public HashMap<String, Document> parent;
 
-	// public List<Document> resultList;
-
 	public SearchHelper() {
 		this.parent = new HashMap<String, Document>();
-		// resultList = new LinkedList<Document>();
 	}
 
-	public List<String> findPath(Map<String, Document> docsMap,
+	public List<Document> findPath(Map<String, Document> docsMap,
 			Document curDoc, String keyword2, int depth,
 			HashSet<String> visitedSet) {
-		List<String> ret = new LinkedList<String>();
-		// String result = DFS(docsMap, curDoc, keyword2, depth, visitedSet);
+		List<Document> ret = new LinkedList<Document>();
 		visitedSet.add(curDoc.getString("id"));
-		// DFS(docsMap, curDoc, keyword2, depth, visitedSet);
 		Document resultDoc = BFS(curDoc, keyword2, docsMap);
-		// for (Document resultDoc : resultList) {
+		ret.add(resultDoc);
 		String result = resultDoc.getString("id");
-		String path = resultDoc.getString("id").split(":")[1].replace("_", ".")
-				+ "::" + resultDoc.getString("key") + ":"
-				+ resultDoc.getString("value");
 		Document parentDoc = null;
 		while ((parentDoc = parent.get(result)) != null) {
-			path = parentDoc.getString("id").split(":")[1].replace("_", ".")
-					+ "::" + parentDoc.getString("key") + ":"
-					+ parentDoc.getString("value") + "||" + path;
+			ret.add(parentDoc);
+			// path = parentDoc.getString("id").split(":")[1].replace("_", ".")
+			// + "::" + parentDoc.getString("key") + ":"
+			// + parentDoc.getString("value") + "||" + path;
 			result = parentDoc.getString("id");
-//			if (result.equals(curDoc.getString("id")))
-//				break;
 		}
-		ret.add(path);
-		// }
 		return ret;
 	}
 

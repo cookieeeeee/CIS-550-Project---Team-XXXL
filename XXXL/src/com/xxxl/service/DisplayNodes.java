@@ -24,9 +24,9 @@ public class DisplayNodes {
 		MongoCursor<Document> mongoCursor = UserLoginDAO.json.find().iterator();
 		int count = 0;
 		while (mongoCursor.hasNext()) {
-//			if (count++ > 100) {
-//				break;
-//			}
+			// if (count++ > 100) {
+			// break;
+			// }
 			Document docNode = mongoCursor.next();
 			JSONObject jsonNode = new JSONObject();
 			String nodeId = (String) docNode.get("id");
@@ -45,7 +45,7 @@ public class DisplayNodes {
 			jsonNode.put("size", 3);
 			nodeList.add(jsonNode);
 			List<String> linkedIds = (List<String>) docNode.get("linkedId");
-			if(linkedIds.size()>30){
+			if (linkedIds.size() > 30) {
 				continue;
 			}
 			for (String linkedId : linkedIds) {

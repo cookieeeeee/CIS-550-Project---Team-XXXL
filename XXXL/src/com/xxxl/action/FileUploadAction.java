@@ -15,7 +15,6 @@ import com.xxxl.service.UserService;
 
 public class FileUploadAction extends ActionSupport implements
 		ServletRequestAware, SessionAware {
-	private static final String String = null;
 	private File file1;
 	private String file1FileName;
 	private String file1ContentType;
@@ -40,6 +39,11 @@ public class FileUploadAction extends ActionSupport implements
 
 	@Override
 	public String execute() throws Exception {
+		// Check file name
+		if (isFileExisting(file1FileName)) {
+			request.setAttribute("hint", "Cannot input the same file!");
+			return SUCCESS;
+		}
 		String userName = (String) session.get("name");
 		String fileExtension = file1FileName.substring(
 				file1FileName.lastIndexOf(".") + 1).toLowerCase();
@@ -59,6 +63,15 @@ public class FileUploadAction extends ActionSupport implements
 		request.setAttribute("hint", "File Uploaded!");
 		session.put("jsonStr", new DisplayNodes().displayFiles());
 		return SUCCESS;
+	}
+
+	private boolean isFileExisting(String file1FileName) {
+		List<String> fileList = (List<String>) session.get("fileList");
+		for (String fileName : fileList) {
+			if (fileName.equals(file1FileName))
+				return true;
+		}
+		return false;
 	}
 
 	@Override
