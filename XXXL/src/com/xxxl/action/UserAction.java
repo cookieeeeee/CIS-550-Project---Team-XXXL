@@ -44,8 +44,8 @@ public class UserAction extends ActionSupport implements ServletRequestAware,
 		UserService userService = new UserService();
 		if (userService.checkLogin(userLogin)) {
 			session.put("name", userLogin.getName());
-			userService.initDAO(userLogin.getName());
-			session.put("jsonStr", new DisplayNodes().displayFiles());
+			session.put("jsonStr",
+					new DisplayNodes().displayFiles(userLogin.getName()));
 			session.put("pathList", "[]");
 			return SUCCESS;
 		} else {

@@ -15,7 +15,11 @@ public class FollowAction extends ActionSupport {
 	public String execute() throws Exception {
 		String userName = (String) ActionContext.getContext().getSession()
 				.get("name");
-		new UserService().followUser(userName, followName);
+		if (new UserService().followUser(userName, followName))
+			ActionContext.getContext().put("followsHint",
+					"Successfully followed user: " + followName);
+		else
+			ActionContext.getContext().put("followsHint", "User not exist");
 		return SUCCESS;
 	}
 }

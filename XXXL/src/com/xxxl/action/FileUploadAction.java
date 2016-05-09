@@ -45,23 +45,27 @@ public class FileUploadAction extends ActionSupport implements
 			return SUCCESS;
 		}
 		String userName = (String) session.get("name");
-		String fileExtension = file1FileName.substring(
-				file1FileName.lastIndexOf(".") + 1).toLowerCase();
-		if (file1ContentType.equals("application/octet-stream")
-				|| fileExtension.equals("json")) {
-			userService.extractJSON(file1, file1FileName, userName);
-		} else if (file1ContentType.equals("text/csv")
-				|| fileExtension.equals("csv")) {
-			userService.extractCSV(file1, file1FileName, userName);
-		} else if (file1ContentType.equals("text/xml")
-				|| fileExtension.equals("xml")) {
-			userService.extractXML(file1, file1FileName, userName);
-		} else {
-			userService.extractOtherFiles(file1, file1FileName, userName);
+		try {
+			String fileExtension = file1FileName.substring(
+					file1FileName.lastIndexOf(".") + 1).toLowerCase();
+			if (file1ContentType.equals("application/octet-stream")
+					|| fileExtension.equals("json")) {
+				userService.extractJSON(file1, file1FileName, userName);
+			} else if (file1ContentType.equals("text/csv")
+					|| fileExtension.equals("csv")) {
+				userService.extractCSV(file1, file1FileName, userName);
+			} else if (file1ContentType.equals("text/xml")
+					|| fileExtension.equals("xml")) {
+				userService.extractXML(file1, file1FileName, userName);
+			} else {
+				userService.extractOtherFiles(file1, file1FileName, userName);
+			}
+			userService.linking(userName);
+			request.setAttribute("hint", "File Uploaded!");
+		} catch (Exception e) {
+			request.setAttribute("hint", "Cannot parse the file");
 		}
-		userService.linking();
-		request.setAttribute("hint", "File Uploaded!");
-		session.put("jsonStr", new DisplayNodes().displayFiles());
+		session.put("jsonStr", new DisplayNodes().displayFiles(userName));
 		return SUCCESS;
 	}
 

@@ -24,6 +24,8 @@ public class SearchHelper {
 		List<Document> ret = new LinkedList<Document>();
 		visitedSet.add(curDoc.getString("id"));
 		Document resultDoc = BFS(curDoc, keyword2, docsMap);
+		if (resultDoc == null)
+			return null;
 		ret.add(resultDoc);
 		String result = resultDoc.getString("id");
 		Document parentDoc = null;

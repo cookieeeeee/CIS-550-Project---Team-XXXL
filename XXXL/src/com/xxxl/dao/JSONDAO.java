@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -26,15 +27,19 @@ import freemarker.core.ParseException;
 
 public class JSONDAO {
 	// public static MongoDatabase accounts;
-	public static MongoCollection<Document> json;
+	public MongoCollection<Document> json;
 	public static MongoCollection<Document> login;
 	public static MongoDatabase accounts;
 	public static MongoCollection<Document> indexforsearch;
 	static {
 		login = UserLoginDAO.login;
-		json = UserLoginDAO.json;
+		// json = UserLoginDAO.json;
 		accounts = UserLoginDAO.accounts;
 		indexforsearch = accounts.getCollection("indexforsearch");
+	}
+
+	public JSONDAO(String name) {
+		json = accounts.getCollection(name);
 	}
 
 	public List<String> findAllUserNames() {
@@ -45,6 +50,20 @@ public class JSONDAO {
 			String curUserName = (String) curUserDoc.get("name");
 			userNames.add(curUserName);
 		}
+		return userNames;
+	}
+
+	public List<String> findUserNHisFollowers(String name) {
+		MongoCursor<Document> mongoCursor = login.find(
+				new BasicDBObject("name", name)).iterator();
+		Document d = mongoCursor.next();
+		List<String> otherUsers = (List<String>) d.get("follows");
+		List<String> userNames = null;
+		if (otherUsers == null)
+			userNames = new ArrayList<String>();
+		else
+			userNames = new ArrayList<String>(otherUsers);
+		userNames.add(name);
 		return userNames;
 	}
 
@@ -287,11 +306,13 @@ public class JSONDAO {
 		saveToIndexforsearch(jList);
 	}
 
-	public List<Document> findNodes(String keyword1) {
+	public List<Document> findNodes(String keyword1, List<String> allUsers) {
 		MongoCursor<Document> mongoCursor = indexforsearch.find(
 				new BasicDBObject("value", keyword1)).iterator();
 		Map<String, Set<String>> collectionNameIdsMap = new HashMap<String, Set<String>>();
-
+		for (String user : allUsers) {
+			collectionNameIdsMap.put(user, new HashSet<String>());
+		}
 		List<Document> ret = new LinkedList<Document>();
 		while (mongoCursor.hasNext()) {
 			Document d = mongoCursor.next();
@@ -301,12 +322,13 @@ public class JSONDAO {
 			if (collectionNameIdsMap.containsKey(userName)) {
 				Set<String> set = collectionNameIdsMap.get(userName);
 				set.add(id);
-			} else {
-				// List<String> list = new LinkedList<String>();
-				Set<String> set = new HashSet<String>();
-				set.add(id);
-				collectionNameIdsMap.put(userName, set);
 			}
+			// } else {
+			// // List<String> list = new LinkedList<String>();
+			// Set<String> set = new HashSet<String>();
+			// set.add(id);
+			// collectionNameIdsMap.put(userName, set);
+			// }
 		}
 
 		for (String userName : collectionNameIdsMap.keySet()) {
@@ -318,6 +340,18 @@ public class JSONDAO {
 						.iterator().next();
 				ret.add(d);
 			}
+		}
+		return ret;
+	}
+
+	public List<String> createFilename(String name) {
+		List<String> ret = new LinkedList<String>();
+		Iterator<Document> ite = json.find(
+				new BasicDBObject("value", "__content__")).iterator();
+		while (ite.hasNext()) {
+			Document curDoc = ite.next();
+			String fileName = (String) curDoc.get("key");
+			ret.add(fileName);
 		}
 		return ret;
 	}

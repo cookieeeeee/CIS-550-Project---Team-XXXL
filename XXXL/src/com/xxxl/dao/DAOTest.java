@@ -27,9 +27,9 @@ public class DAOTest {
 	
 	@Test
 	public void testUpdate(){
-		UserLoginDAO dao = new UserLoginDAO();
-		UserLoginDAO.init("zhixu");
-		UserLoginDAO.json.updateOne(new Document("1","222"), new Document("$set",new Document("1","1")));
+//		UserLoginDAO dao = new UserLoginDAO();
+//		UserLoginDAO.init("zhixu");
+//		UserLoginDAO.json.updateOne(new Document("1","222"), new Document("$set",new Document("1","1")));
 //		UserLoginDAO.json.insertOne(new Document("1","222"));
 	}
 }

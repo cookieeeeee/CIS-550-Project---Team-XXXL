@@ -35,9 +35,14 @@ public class SearchAction extends ActionSupport {
 				secondKeyword, userName, names);
 		List<String> searchResult = new LinkedList<String>();
 		for (List<Document> docList : docLists) {
+			if (docList == null)
+				continue;
 			String result = userService.createResultStr(docList);
 			searchResult.add(result);
 		}
+		if (searchResult.size() == 0)
+			searchResult.add("Cannot find path between " + firstKeyword + " "
+					+ secondKeyword);
 		String pathList = userService.createPathList(docLists);
 		ActionContext.getContext().put("searchResult", searchResult);
 		ActionContext.getContext().put("pathList", pathList);

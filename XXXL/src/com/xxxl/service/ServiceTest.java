@@ -42,12 +42,12 @@ public class ServiceTest {
 		}
 	}
 
-	@Test
-	public void testSearch() {
-		UserService userService = new UserService();
-		UserLoginDAO.init("zhixu");
-		List<String> names = new LinkedList<String>();
-//		names.add("tui");
-		userService.search("4", "1013", "zhixu", names);
-	}
+//	@Test
+//	public void testSearch() {
+//		UserService userService = new UserService();
+//		UserLoginDAO.init("zhixu");
+//		List<String> names = new LinkedList<String>();
+////		names.add("tui");
+//		userService.search("4", "1013", "zhixu", names);
+//	}
 }

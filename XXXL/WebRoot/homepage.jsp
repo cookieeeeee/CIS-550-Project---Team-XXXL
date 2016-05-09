@@ -21,18 +21,12 @@
 		response.sendRedirect("/login.jsp");
 		return;
 	}
-	BasicDBObject query = new BasicDBObject("name", name);
-	Iterator<Document> ite = JSONDAO.json.find(
-	new BasicDBObject("value", "__content__")).iterator();
-	LinkedList<String> fileNames = new LinkedList<String>();
-	while (ite.hasNext()) {
-		Document curDoc = ite.next();
-		String fileName = (String) curDoc.get("key");
-		fileNames.add(fileName);
-	}
+
+	List<String> fileNames = new JSONDAO(name).createFilename(name);
 	session.setAttribute("fileList", fileNames);
 
 	// Get follows
+	BasicDBObject query = new BasicDBObject("name", name);
 	List<String> follows = (List<String>) JSONDAO.login.find(query)
 	.iterator().next().get("follows");
 	if (follows == null) {
@@ -181,15 +175,18 @@
 						e.color = resultColor;
 					}
 				});
-				if(j==nodeList.length-1)
+				if (j == nodeList.length - 1)
 					break;
-				node1 = nodeList[j+1];
-				s.graph.edges().forEach(function(e) {
-					if ((e.source == node0 && e.target == node1)
-							|| (e.source == node1 && e.target == node0)) {
-						e.color = resultColor;
-					}
-				});
+				node1 = nodeList[j + 1];
+				s.graph
+						.edges()
+						.forEach(
+								function(e) {
+									if ((e.source == node0 && e.target == node1)
+											|| (e.source == node1 && e.target == node0)) {
+										e.color = resultColor;
+									}
+								});
 			}
 		}
 		setTimeout("s.stopForceAtlas2()", 10000);

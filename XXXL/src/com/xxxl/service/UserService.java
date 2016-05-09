@@ -25,7 +25,7 @@ import com.xxxl.util.SearchHelper;
 public class UserService {
 
 	public boolean checkLogin(UserLogin userLogin) {
-		UserLoginDAO userLoginDAO = new UserLoginDAO();
+		UserLoginDAO userLoginDAO = new UserLoginDAO(userLogin.getName());
 		ArrayList<JSONObject> accounts = userLoginDAO.getAccounts();
 		for (JSONObject account : accounts) {
 			if (account.get("name").equals(userLogin.getName())
@@ -37,7 +37,7 @@ public class UserService {
 	}
 
 	public boolean checkRegister(UserLogin userLogin) {
-		UserLoginDAO userLoginDAO = new UserLoginDAO();
+		UserLoginDAO userLoginDAO = new UserLoginDAO(userLogin.getName());
 		if (userLogin.getName().equals("login")) {
 			return false;
 		}
@@ -51,7 +51,7 @@ public class UserService {
 	}
 
 	public void insertAccount(UserLogin userLogin) {
-		UserLoginDAO userLoginDAO = new UserLoginDAO();
+		UserLoginDAO userLoginDAO = new UserLoginDAO(userLogin.getName());
 		userLoginDAO.insertAccount(userLogin);
 	}
 
@@ -78,19 +78,19 @@ public class UserService {
 			}
 		}
 
-		JSONDAO jDAO = new JSONDAO();
-		JSONDAO.json = UserLoginDAO.accounts.getCollection(userName);
+		JSONDAO jDAO = new JSONDAO(userName);
+		// JSONDAO.json = UserLoginDAO.accounts.getCollection(userName);
 		jDAO.saveJSON(output, fileName, userName);
 	}
 
 	public void extractCSV(File csvFile, String fileName, String userName) {
-		JSONDAO jDAO = new JSONDAO();
-		JSONDAO.json = UserLoginDAO.accounts.getCollection(userName);
+		JSONDAO jDAO = new JSONDAO(userName);
+		// JSONDAO.json = UserLoginDAO.accounts.getCollection(userName);
 		jDAO.saveCSV(csvFile, fileName, userName);
 	}
 
-	public void linking() {
-		JSONDAO jDAO = new JSONDAO();
+	public void linking(String name) {
+		JSONDAO jDAO = new JSONDAO(name);
 		// List<String> allUserNames = new LinkedList<String>(otherNames);
 		// allUserNames.add(userName);
 		List<String> allUserNames = jDAO.findAllUserNames();
@@ -102,7 +102,7 @@ public class UserService {
 		List<List<Document>> ret = new LinkedList<List<Document>>();
 		List<String> allUserNames = new LinkedList<String>(otherUserNames);
 		allUserNames.add(userName);
-		JSONDAO jDAO = new JSONDAO();
+		JSONDAO jDAO = new JSONDAO(userName);
 		LinkedList<Document> allDocs = (LinkedList<Document>) jDAO
 				.findDocs(allUserNames);
 		// Set following relation
@@ -110,7 +110,8 @@ public class UserService {
 		for (Document curDoc : allDocs) {
 			docsMap.put(curDoc.getString("id"), curDoc);
 		}
-		List<Document> nodesIncludingKeyword1 = findNodeIncludingKeyword1(keyword1);
+		List<Document> nodesIncludingKeyword1 = findNodeIncludingKeyword1(
+				keyword1, userName, allUserNames);
 		for (Document nodeIncludingkey1 : nodesIncludingKeyword1) {
 			SearchHelper helper = new SearchHelper();
 			List<Document> resultList = helper.findPath(docsMap,
@@ -121,43 +122,42 @@ public class UserService {
 		return ret;
 	}
 
-	private List<Document> findNodeIncludingKeyword1(String keyword1) {
-		JSONDAO jsondao = new JSONDAO();
-		return jsondao.findNodes(keyword1);
-	}
-
-	public void initDAO(String name) {
-		UserLoginDAO.init(name);
+	private List<Document> findNodeIncludingKeyword1(String keyword1,
+			String userName, List<String> allUsers) {
+		JSONDAO jsondao = new JSONDAO(userName);
+		return jsondao.findNodes(keyword1, allUsers);
 	}
 
 	public void extractXML(File file1, String file1FileName, String userName) {
-		JSONDAO jDAO = new JSONDAO();
-		JSONDAO.json = UserLoginDAO.accounts.getCollection(userName);
+		JSONDAO jDAO = new JSONDAO(userName);
 		jDAO.saveXML(file1, file1FileName, userName);
 	}
 
 	public void extractOtherFiles(File file1, String file1FileName,
 			String userName) {
-		JSONDAO jDAO = new JSONDAO();
-		JSONDAO.json = UserLoginDAO.accounts.getCollection(userName);
+		JSONDAO jDAO = new JSONDAO(userName);
 		jDAO.saveOtherFiles(file1, file1FileName, userName);
 	}
 
-	public void followUser(String userName, String follows) {
-		new UserLoginDAO().insertFollows(userName, follows);
+	public boolean followUser(String userName, String follows) {
+		if (new UserLoginDAO(userName).insertFollows(userName, follows))
+			return true;
+		else
+			return false;
 	}
 
 	public String createResultStr(List<Document> docList) {
 		StringBuilder ret = new StringBuilder();
 		Document firstDoc = docList.get(docList.size() - 1);
-		ret.append(firstDoc.getString("id").split(":")[1].replace("_", ".")
-				+ "::" + firstDoc.getString("key") + ":"
+		String[] prefix = firstDoc.getString("id").split(":");
+		ret.append(prefix[0] + "->" + prefix[1].replace("_", ".") + "::"
+				+ firstDoc.getString("key") + "::"
 				+ firstDoc.getString("value"));
 		for (int i = docList.size() - 2; i >= 0; i--) {
 			Document d = docList.get(i);
-			String path = "||"
-					+ d.getString("id").split(":")[1].replace("_", ".") + "::"
-					+ d.getString("key") + ":" + d.getString("value");
+			prefix = d.getString("id").split(":");
+			String path = "||" + prefix[0] + "->" + prefix[1].replace("_", ".")
+					+ "::" + d.getString("key") + "::" + d.getString("value");
 			ret.append(path);
 		}
 		return ret.toString();
@@ -166,6 +166,8 @@ public class UserService {
 	public String createPathList(List<List<Document>> docLists) {
 		JSONArray ret = new JSONArray();
 		for (List<Document> docList : docLists) {
+			if (docList == null)
+				continue;
 			JSONArray list = new JSONArray();
 			for (Document d : docList) {
 				list.put(d.getString("id"));

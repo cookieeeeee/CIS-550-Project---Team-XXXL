@@ -2,6 +2,7 @@ package com.xxxl.dao;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.bson.Document;
@@ -18,7 +19,7 @@ import com.xxxl.bean.UserLogin;
 
 public class UserLoginDAO {
 	public static MongoDatabase accounts;
-	public static MongoCollection<Document> json;
+	public MongoCollection<Document> json;
 	public static MongoCollection<Document> login;
 	static {
 		MongoClient mongo = new MongoClient("localhost", 27017);
@@ -26,23 +27,19 @@ public class UserLoginDAO {
 		login = accounts.getCollection("login");
 	}
 
-	public static void init(String userName) {
-		json = accounts.getCollection(userName);
+	public UserLoginDAO(String name) {
+		json = accounts.getCollection(name);
 	}
 
 	public ArrayList<JSONObject> getAccounts() {
 		ArrayList<JSONObject> toReturn = new ArrayList<JSONObject>();
-		// MongoClient mongo = new MongoClient("localhost", 27017);
-		// MongoDatabase accounts = mongo.getDatabase("accounts");
 		FindIterable<Document> account = login.find();
 		MongoCursor<Document> accountCursor = account.iterator();
 		while (accountCursor.hasNext()) {
-			// System.out.println(accountCursor.next());
 			String json = accountCursor.next().toJson();
 			JSONObject jsonObj = new JSONObject(json);
 			toReturn.add(jsonObj);
 		}
-		// mongo.close();
 		return toReturn;
 	}
 
@@ -56,12 +53,16 @@ public class UserLoginDAO {
 		accounts.createCollection(userLogin.getName());
 	}
 
-	public void insertFollows(String userName, String follows) {
+	public boolean insertFollows(String userName, String follows) {
+		// Insert to {name:follow, follows:[userName]}
+		MongoCursor<Document> mongoCursor = login.find(
+				new BasicDBObject("name", follows)).iterator();
+		if (!mongoCursor.hasNext())
+			return false;
 		MongoCollection<Document> login = accounts.getCollection("login");
-		// Document user = login.find(new Document("name",
-		// userName)).iterator().next();
-		login.updateOne(new Document("name", userName), new BasicDBObject(
-				"$push", new BasicDBObject("follows", follows)),
+		login.updateOne(new Document("name", follows), new BasicDBObject(
+				"$push", new BasicDBObject("follows", userName)),
 				new UpdateOptions().upsert(true));
+		return true;
 	}
 }
