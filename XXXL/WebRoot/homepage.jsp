@@ -100,6 +100,7 @@
 					<td>Follow Name:</td>
 					<td><input type="text" name="followName"></td>
 					<td><input type="submit" value="Follow"></td>
+					<td>${followsHint }</td>
 				</tr>
 			</table>
 		</form>

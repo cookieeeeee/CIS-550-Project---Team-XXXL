@@ -1,5 +1,8 @@
 package com.xxxl.action;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +37,12 @@ public class SearchAction extends ActionSupport {
 		List<List<Document>> docLists = userService.search(firstKeyword,
 				secondKeyword, userName, names);
 		List<String> searchResult = new LinkedList<String>();
+		Collections.sort(docLists, new Comparator<List<Document>>() {
+			@Override
+			public int compare(List<Document> o1, List<Document> o2) {
+				return o1.size() - o2.size();
+			}
+		});
 		for (List<Document> docList : docLists) {
 			if (docList == null)
 				continue;
